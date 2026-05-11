@@ -1,0 +1,61 @@
+[
+  {
+    "segment_id": 1,
+    "keywords": [
+      "morning",
+      "light",
+      "washes",
+      "over",
+      "city"
+    ],
+    "scene": "morning",
+    "tone": "neutral",
+    "summary": "Morning light washes over the city as people begin a...",
+    "suggested_visuals": [
+      "morning",
+      "light",
+      "washes"
+    ],
+    "narration_style": "natural and balanced"
+  },
+  {
+    "segment_id": 2,
+    "keywords": [
+      "gentle",
+      "rain",
+      "arrives",
+      "covering",
+      "roads"
+    ],
+    "scene": "weather",
+    "tone": "calm",
+    "summary": "A gentle rain arrives, covering the roads with reflections and...",
+    "suggested_visuals": [
+      "weather",
+      "gentle",
+      "rain",
+      "arrives"
+    ],
+    "narration_style": "slow and warm"
+  },
+  {
+    "segment_id": 3,
+    "keywords": [
+      "weather",
+      "clears",
+      "story",
+      "shifts",
+      "toward"
+    ],
+    "scene": "general",
+    "tone": "neutral",
+    "summary": "As the weather clears, the story shifts toward hope and...",
+    "suggested_visuals": [
+      "general",
+      "weather",
+      "clears",
+      "story"
+    ],
+    "narration_style": "natural and balanced"
+  }
+]

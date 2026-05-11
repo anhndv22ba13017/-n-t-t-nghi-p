@@ -1,0 +1,23 @@
+[
+  {
+    "segment_id": 1,
+    "image_path": "data/images/sample_002.jpg",
+    "score": 3.5,
+    "reason": "keyword:city, tone:neutral",
+    "source": "metadata_catalog"
+  },
+  {
+    "segment_id": 2,
+    "image_path": "data/images/sample_067.jpg",
+    "score": 6.5,
+    "reason": "keyword:rain, scene:weather, tone:calm",
+    "source": "metadata_catalog"
+  },
+  {
+    "segment_id": 3,
+    "image_path": "data/images/sample_001.jpg",
+    "score": 1.5,
+    "reason": "tone:neutral",
+    "source": "metadata_catalog"
+  }
+]

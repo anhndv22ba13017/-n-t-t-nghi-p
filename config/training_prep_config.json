@@ -1,0 +1,18 @@
+{
+  "dataset_zip_path": "C:/Users/HUYMANH COMPUTER/Downloads/FINAL_AUDIO_DATASET_19FILES_84ROWS_ASR.zip",
+  "extracted_root_dir": "data/training_workspace/extracted_dataset",
+  "working_dataset_dir": "data/training_workspace/training_dataset",
+  "manifest_inside_zip": "kaggle/working/FINAL_AUDIO_DATASET_19FILES_84ROWS_ASR/metadata/manifest.jsonl",
+  "min_duration_seconds": 1.0,
+  "max_duration_seconds": 12.0,
+  "min_text_length": 8,
+  "validation_ratio": 0.1,
+  "test_ratio": 0.1,
+  "random_seed": 42,
+  "require_vietnamese_text": true,
+  "train_manifest_name": "train_manifest.jsonl",
+  "valid_manifest_name": "valid_manifest.jsonl",
+  "test_manifest_name": "test_manifest.jsonl",
+  "prepared_manifest_name": "prepared_manifest.jsonl",
+  "report_name": "training_prep_report.json"
+}

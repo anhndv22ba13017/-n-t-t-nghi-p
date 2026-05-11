@@ -1,0 +1,83 @@
+[
+  {
+    "segment_id": 1,
+    "provider": "qwen",
+    "model": "Qwen2.5-7B-Instruct",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You analyze narration segments for an AI video pipeline. Return strict JSON with keys: keywords, scene, tone, summary, visuals, narration_style. Keep keywords and visuals concise. Prefer en outputs when the input language allows it."
+      },
+      {
+        "role": "user",
+        "content": "Analyze the following narration segment and produce strict JSON only.\nsegment_id: 1\ntext: Morning light washes over the city as people begin a new day. Small shops open their doors and the streets slowly become alive."
+      }
+    ],
+    "expected_schema": {
+      "keywords": [
+        "string"
+      ],
+      "scene": "string",
+      "tone": "string",
+      "summary": "string",
+      "visuals": [
+        "string"
+      ],
+      "narration_style": "string"
+    }
+  },
+  {
+    "segment_id": 2,
+    "provider": "qwen",
+    "model": "Qwen2.5-7B-Instruct",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You analyze narration segments for an AI video pipeline. Return strict JSON with keys: keywords, scene, tone, summary, visuals, narration_style. Keep keywords and visuals concise. Prefer en outputs when the input language allows it."
+      },
+      {
+        "role": "user",
+        "content": "Analyze the following narration segment and produce strict JSON only.\nsegment_id: 2\ntext: A gentle rain arrives, covering the roads with reflections and soft movement. The narrator describes how ordinary moments can still feel cinematic."
+      }
+    ],
+    "expected_schema": {
+      "keywords": [
+        "string"
+      ],
+      "scene": "string",
+      "tone": "string",
+      "summary": "string",
+      "visuals": [
+        "string"
+      ],
+      "narration_style": "string"
+    }
+  },
+  {
+    "segment_id": 3,
+    "provider": "qwen",
+    "model": "Qwen2.5-7B-Instruct",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You analyze narration segments for an AI video pipeline. Return strict JSON with keys: keywords, scene, tone, summary, visuals, narration_style. Keep keywords and visuals concise. Prefer en outputs when the input language allows it."
+      },
+      {
+        "role": "user",
+        "content": "Analyze the following narration segment and produce strict JSON only.\nsegment_id: 3\ntext: As the weather clears, the story shifts toward hope and forward motion. The final scene invites the audience to imagine a brighter future ahead."
+      }
+    ],
+    "expected_schema": {
+      "keywords": [
+        "string"
+      ],
+      "scene": "string",
+      "tone": "string",
+      "summary": "string",
+      "visuals": [
+        "string"
+      ],
+      "narration_style": "string"
+    }
+  }
+]

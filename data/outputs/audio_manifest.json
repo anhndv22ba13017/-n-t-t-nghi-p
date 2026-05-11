@@ -1,0 +1,23 @@
+[
+  {
+    "segment_id": 1,
+    "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_01.wav",
+    "duration_seconds": 0.0,
+    "engine": "edge_tts",
+    "status": "generated"
+  },
+  {
+    "segment_id": 2,
+    "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_02.wav",
+    "duration_seconds": 0.0,
+    "engine": "edge_tts",
+    "status": "generated"
+  },
+  {
+    "segment_id": 3,
+    "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_03.wav",
+    "duration_seconds": 0.0,
+    "engine": "edge_tts",
+    "status": "generated"
+  }
+]

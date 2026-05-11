@@ -1,0 +1,49 @@
+{
+  "project_name": "AI Video Assistant Demo",
+  "timeline_name": "Auto Generated Timeline",
+  "video_track": 1,
+  "audio_track": 1,
+  "fps": 25,
+  "clips": [
+    {
+      "segment_id": 1,
+      "start_seconds": 0.0,
+      "end_seconds": 0.0,
+      "duration_seconds": 0.0,
+      "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_01.wav",
+      "image_path": "data/images/sample_002.jpg",
+      "narration_text": "Morning light washes over the city as people begin a new day. Small shops open their doors and the streets slowly become alive.",
+      "scene": "morning",
+      "tone": "neutral",
+      "visual_reason": "keyword:city, tone:neutral"
+    },
+    {
+      "segment_id": 2,
+      "start_seconds": 0.0,
+      "end_seconds": 0.0,
+      "duration_seconds": 0.0,
+      "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_02.wav",
+      "image_path": "data/images/sample_067.jpg",
+      "narration_text": "A gentle rain arrives, covering the roads with reflections and soft movement. The narrator describes how ordinary moments can still feel cinematic.",
+      "scene": "weather",
+      "tone": "calm",
+      "visual_reason": "keyword:rain, scene:weather, tone:calm"
+    },
+    {
+      "segment_id": 3,
+      "start_seconds": 0.0,
+      "end_seconds": 0.0,
+      "duration_seconds": 0.0,
+      "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_03.wav",
+      "image_path": "data/images/sample_001.jpg",
+      "narration_text": "As the weather clears, the story shifts toward hope and forward motion. The final scene invites the audience to imagine a brighter future ahead.",
+      "scene": "general",
+      "tone": "neutral",
+      "visual_reason": "tone:neutral"
+    }
+  ],
+  "next_step": [
+    "You can use timeline_for_davinci.fcpxml to import into DaVinci Resolve Free.",
+    "In DaVinci Resolve: File -> Import -> Timeline -> Select timeline_for_davinci.fcpxml"
+  ]
+}

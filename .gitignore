@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/outputs/audio/
+data/training_workspace/extracted_dataset/
+data/training_workspace/training_dataset/
+
+# Bỏ qua các file zip và model dung lượng lớn (GitHub giới hạn 100MB)
+*.zip
+my_qwen_trained_model/
+tmp_qwen3_tts/
+tmp_cosyvoice/

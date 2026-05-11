@@ -1,0 +1,20 @@
+{
+  "project_name": "AI Video Assistant Demo",
+  "timeline_name": "Auto Generated Timeline",
+  "script_path": "data/scripts/sample_script.txt",
+  "image_metadata_path": "data/images/metadata.json",
+  "output_dir": "data/outputs",
+  "audio_output_dir": "data/outputs/audio",
+  "reports_dir": "data/reports",
+  "max_sentences_per_segment": 2,
+  "tts_engine_name": "edge_tts",
+  "tts_voice": "vi-VN-HoaiMyNeural",
+  "external_audio_manifest_path": null,
+  "analysis_mode": "external_llm",
+  "external_analysis_path": "data/outputs/analysis.json",
+  "analysis_provider": "qwen",
+  "analysis_model": "Qwen2.5-7B-Instruct",
+  "image_strategy": "metadata_keyword_match",
+  "target_language": "en",
+  "fps": 25
+}
