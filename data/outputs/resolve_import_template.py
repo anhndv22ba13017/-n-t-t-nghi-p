@@ -4,7 +4,7 @@
 from pathlib import Path
 import json
 
-PLAN_PATH = Path(r"C:\Users\HUYMANH COMPUTER\Desktop\Đồ án\data\outputs\resolve_import_plan.json")
+PLAN_PATH = Path(r"c:\Users\HUYMANH COMPUTER\Desktop\Đồ án\data\outputs\resolve_import_plan.json")
 
 
 def main():

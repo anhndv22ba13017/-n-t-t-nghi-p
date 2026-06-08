@@ -40,7 +40,52 @@ Y nghia:
 - `tone`: nhan cam xuc
 - `tags`: tu khoa mo ta anh
 
-## 3. Audio output
+Ngoai ra, project cung co the sinh tap tin index phu hop cho AI image retrieval:
+
+- `data/images/faiss_index.bin`
+- `data/images/image_paths.json`
+
+`faiss_index.bin` la index vector chua embedding cua metadata anh.
+`image_paths.json` luu danh sach duong dan anh ung voi index.
+
+## 3. Analysis output
+
+File:
+
+- `data/outputs/analysis.json`
+
+Format:
+
+```json
+[
+  {
+    "segment_id": 1,
+    "keywords": ["voice", "image", "script"],
+    "scene": "urban",
+    "tone": "uplifting",
+    "summary": "A quick summary of the narration segment.",
+    "visuals": ["city street", "morning light"],
+    "narration_style": "bright and optimistic",
+    "actions": ["generate", "describe"],
+    "context": "during a fast-paced city tour",
+    "emotional_tone": "positive"
+  }
+]
+```
+
+Y nghia:
+
+- `keywords`: tu khoa chinh cua doan
+- `scene`: boi canh de chon anh
+- `tone`: tam trang hoac kieu trinh bay
+- `summary`: tom tat ngan
+- `visuals`: y tuong hinh anh
+- `narration_style`: phong cach doc
+- `actions`: hanh dong hoat dong
+- `context`: boi canh / noi dung dong thoi
+- `emotional_tone`: cam xuc chinh
+
+## 4. Audio output
 
 File duoc tao trong:
 

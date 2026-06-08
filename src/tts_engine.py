@@ -24,6 +24,7 @@ def synthesize_audio_manifest(
     engine_name: str = "placeholder_tts",
     voice: str = "vi-VN-HoaiMyNeural",
     external_audio_manifest_path: Path | None = None,
+    tts_model_path: Path | None = None,
 ) -> list[AudioAsset]:
     audio_dir.mkdir(parents=True, exist_ok=True)
 
@@ -39,7 +40,7 @@ def synthesize_audio_manifest(
             duration = _generate_with_edge_tts(segment.text, audio_path, voice)
             status = "generated"
         elif engine_name in ["cosyvoice", "qwen", "gwen"]: # Hỗ trợ tên gọi Qwen/Gwen từ proposal
-            duration = _generate_with_qwen_tts(segment.text, audio_path, voice)
+            duration = _generate_with_qwen_tts(segment.text, audio_path, voice, tts_model_path)
             status = "generated"
         else:
             duration = estimate_duration_seconds(segment.text)
@@ -95,46 +96,103 @@ def _generate_with_edge_tts(text: str, output_path: Path, voice: str) -> float:
 
 _qwen_tts_model = None
 
-def _generate_with_qwen_tts(text: str, output_path: Path, voice: str) -> float:
+def get_qwen_tts_model(model_dir: Path | str | None = None):
     global _qwen_tts_model
-    import soundfile as sf
-        
+    import torch
     try:
         from qwen_tts import Qwen3TTSModel
-        import torch
     except ImportError:
-        print("LỖI: Chưa cài đặt môi trường cho Qwen3-TTS. Vui lòng cài bằng lệnh: pip install qwen-tts")
-        return 0.0
+        raise ImportError("LỖI: Chưa cài đặt môi trường cho Qwen3-TTS. Vui lòng cài bằng lệnh: pip install qwen-tts")
+
+    model_dir = Path(model_dir) if model_dir else Path("my_qwen_trained_model/checkpoint-epoch-9")
+    if not model_dir.exists():
+        raise FileNotFoundError(f"Không tìm thấy thư mục mô hình Qwen3-TTS tại: {model_dir}")
 
     if _qwen_tts_model is None:
-        # Đường dẫn tới mô hình đã Fine-Tune hoặc mô hình gốc trên máy bạn
-        # ĐƯỜNG DẪN TỚI MÔ HÌNH CHÍNH CHỦ MÀ BẠN VỪA FINE-TUNE THÀNH CÔNG TỪ KAGGLE!
-        # Bạn cứ giải nén cục Zip, vứt luôn cả cái lõi thư mục my_qwen_trained_model vào thư mục Đồ án là xong.
-        model_dir = "my_qwen_trained_model/checkpoint-epoch-9" 
         print(f"Loading Qwen3-TTS model từ: {model_dir}...")
         try:
             device = "cuda:0" if torch.cuda.is_available() else "cpu"
             _qwen_tts_model = Qwen3TTSModel.from_pretrained(
-                model_dir,
+                str(model_dir),
                 device_map=device,
                 dtype=torch.float32 if device == "cpu" else torch.bfloat16,
             )
         except Exception as e:
-            print(f"LỖI khi load model Qwen3-TTS: {e}")
-            return 0.0
+            raise RuntimeError(f"LỖI khi load model Qwen3-TTS: {e}")
+
+    return _qwen_tts_model
+
+def _write_wav_file(output_path: Path, waveform, sample_rate: int) -> None:
+    try:
+        import numpy as np
+    except ImportError:
+        raise ImportError(
+            "LỖI: Cần numpy để ghi file WAV nếu không có soundfile. Hãy cài đặt bằng: pip install numpy"
+        )
+
+    data = np.asarray(waveform)
+    if data.ndim == 1:
+        channels = 1
+    elif data.ndim == 2:
+        channels = data.shape[1]
+    else:
+        raise ValueError("Waveform phải có 1 hoặc 2 chiều")
+
+    if data.dtype.kind == "f":
+        data = np.clip(data, -1.0, 1.0)
+        data = (data * 32767).astype(np.int16)
+    elif data.dtype == np.int16:
+        pass
+    else:
+        data = data.astype(np.int16)
+
+    if channels == 2:
+        interleaved = data.flatten()
+    else:
+        interleaved = data
+
+    with wave.open(str(output_path), "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(2)
+        wf.setframerate(sample_rate)
+        wf.writeframes(interleaved.tobytes())
+
+
+def _generate_with_qwen_tts(text: str, output_path: Path, voice: str, model_dir: Path | None = None) -> float:
+    try:
+        model = get_qwen_tts_model(model_dir)
+    except Exception as e:
+        print(str(e))
+        return 0.0
+
+    supported_speakers = model.get_supported_speakers()
+    if supported_speakers is not None:
+        if voice.lower() not in [speaker.lower() for speaker in supported_speakers]:
+            fallback_voice = supported_speakers[0]
+            print(
+                f"[Warning] Unsupported speaker '{voice}'. Supported speakers: {supported_speakers}. "
+                f"Falling back to '{fallback_voice}'."
+            )
+            voice = fallback_voice
+        else:
+            for speaker in supported_speakers:
+                if speaker.lower() == voice.lower():
+                    voice = speaker
+                    break
 
     print(f"[Qwen3-TTS] Đang sinh âm thanh cho đoạn: {text[:30]}... với giọng {voice}")
     try:
-        # Gọi hàm generate_custom_voice trực tiếp từ thư viện bản quyền
-        wavs, sr = _qwen_tts_model.generate_custom_voice(
+        wavs, sr = model.generate_custom_voice(
             text=text,
             speaker=voice,
         )
-        sf.write(str(output_path), wavs[0], sr)
+        if not wavs:
+            raise RuntimeError("Qwen3-TTS trả về waveform trống")
+        _write_wav_file(output_path, wavs[0], sr)
     except Exception as e:
         print(f"LỖI trong lúc sinh audio bằng Qwen3-TTS: {e}")
         return 0.0
-        
+
     return get_wav_duration(output_path)
 
 

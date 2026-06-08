@@ -24,6 +24,9 @@ class SegmentAnalysis:
     summary: str
     suggested_visuals: list[str]
     narration_style: str
+    actions: list[str]
+    context: str
+    emotional_tone: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

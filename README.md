@@ -6,9 +6,11 @@ Du an nay la bo khung cho de tai:
 
 Muc tieu cua bo khung:
 
-- de ban co mot prototype ro rang de tiep tuc code
-- co cau truc de viet bao cao
-- co du lieu mau de demo quy trinh end-to-end
+- tu dong phan tich noi dung script de lay scene, action, context, tone
+- tu dong sinh voice narration bang TTS Qwen3/CosyVoice
+- tu dong tim anh phu hop bang CLIP + FAISS neu du lieu metadata duoc cung cap
+- xuat ke hoach timeline de nhap vao DaVinci Resolve
+- co cau truc de viet bao cao va demo end-to-end
 
 ## 1. Kien truc tong quan
 
@@ -71,6 +73,18 @@ pip install -r requirements.txt
 python main.py
 ```
 
+Neu muon xay dung FAISS image index truoc khi chay pipeline:
+
+```bash
+python src/build_image_index.py
+```
+
+Neu co the chi dinh thu muc anh voi tu khoa `--image-dir`:
+
+```bash
+python src/build_image_index.py --image-dir data/images
+```
+
 Neu may chua co Python, cai Python truoc roi chay lai hai lenh tren.
 
 Neu muon dung file cau hinh rieng:
@@ -78,14 +92,38 @@ Neu muon dung file cau hinh rieng:
 ```bash
 python main.py --config config/project_config.json
 ```
-
+Neu `analysis_mode` duoc dat la `external_llm`, pipeline se co gang goi nha cung cap LLM neu co the.
+Hien tai repo ho tro OpenAI khi cài `openai` va dat `OPENAI_API_KEY` trong môi truong.
+Neu muon dung Qwen remote, dat `QWEN_API_URL` va `QWEN_API_KEY`.
+The config key `image_strategy` can be set to `metadata_keyword_match` for metadata-based retrieval or `auto`/`faiss` to enable FAISS + CLIP search when an index is available.
 De chuan bi dataset train:
 
 ```bash
 python prepare_training_data.py
 ```
 
-## 4.1 Dung audio sinh tu Kaggle (khong gia lap)
+## 4.1 Dung Flickr8k lam image data
+
+Neu ban muon su dung Flickr8k lam du lieu anh, lam theo cac buoc:
+
+1. Download dataset tu Kaggle: `https://www.kaggle.com/datasets/adityajn105/flickr8k`
+2. Giai nen va dat vao mot thu muc local, vi du:
+   `data/images/flickr8k_raw/`
+3. Chay script de tao metadata va copy anh:
+
+```bash
+python src/build_flickr8k_metadata.py --source-dir data/images/flickr8k_raw
+```
+
+4. Sau do co the chay pipeline chinh:
+
+```bash
+python main.py
+```
+
+Neu muon xoa bo 100 anh mau cu, thu muc `data/images/` da bi cap nhat de khong su dung sample anh nua.
+
+## 4.2 Dung audio sinh tu Kaggle (khong gia lap)
 
 Neu ban da tai `generated_audio.zip` tu Kaggle, giai nen vao mot thu muc local, vi du:
 

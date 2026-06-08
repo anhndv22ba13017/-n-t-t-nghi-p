@@ -1,38 +1,45 @@
+import argparse
 import json
-import os
 from pathlib import Path
 from PIL import Image
-import torch
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
 
-def build_index():
+
+def build_index(image_dir: Path | str = "data/images") -> bool:
+    image_dir = Path(image_dir)
+    try:
+        import faiss
+        from sentence_transformers import SentenceTransformer
+        import torch
+        import numpy as np
+    except ImportError as e:
+        print("Missing dependency for image index building:", e)
+        print("Please install requirements with: pip install -r requirements.txt")
+        return False
+
     print("Loading CLIP model (sentence-transformers/clip-ViT-B-32)...")
     # Sử dụng CLIP để có thể nhúng cả chữ và ảnh
     model = SentenceTransformer('clip-ViT-B-32')
 
-    image_dir = Path("data/images")
     if not image_dir.exists():
         print(f"Directory {image_dir} not found!")
-        return
+        return False
 
     image_paths = []
     images = []
 
-    print(f"Scanning images in {image_dir}...")
-    for file_path in image_dir.glob("*.jpg"):
-        try:
-            img = Image.open(file_path)
-            # Chỉ tải ảnh vào để encode, convert sang RGB
-            images.append(img.convert("RGB"))
-            image_paths.append(str(file_path.as_posix()))
-        except Exception as e:
-            print(f"Error loading {file_path}: {e}")
+    print(f"Scanning images in {image_dir} (recursively)...")
+    for ext in ["*.jpg", "*.jpeg", "*.png"]:
+        for file_path in image_dir.rglob(ext):
+            try:
+                img = Image.open(file_path)
+                images.append(img.convert("RGB"))
+                image_paths.append(str(file_path.as_posix()))
+            except Exception as e:
+                print(f"Error loading {file_path}: {e}")
 
     if not images:
         print("No images found to index.")
-        return
+        return False
 
     print(f"Encoding {len(images)} images. This might take a while...")
     # Encode toàn bộ ảnh thành vector
@@ -62,6 +69,22 @@ def build_index():
     print(f"- FAISS Index lưu tại: {index_path}")
     print(f"- Image Paths lưu tại: {paths_path}")
     print("Bây giờ hệ thống Tìm kiếm Ảnh bằng AI đã sẵn sàng!")
+    return True
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build FAISS/CLIP image index for AI image retrieval")
+    parser.add_argument(
+        "--image-dir",
+        type=str,
+        default="data/images",
+        help="Directory containing images to index (default: data/images)",
+    )
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    build_index()
+    args = parse_args()
+    success = build_index(args.image_dir)
+    if not success:
+        raise SystemExit(1)

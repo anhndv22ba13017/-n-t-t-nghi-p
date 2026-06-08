@@ -1,7 +1,13 @@
 import argparse
 from pathlib import Path
 
-from src.analyze import analyze_segments, build_analysis_prompts, build_analysis_requests, load_external_analysis
+from src.analyze import (
+    analyze_segments,
+    build_analysis_prompts,
+    build_analysis_requests,
+    load_external_analysis,
+    run_llm_analysis,
+)
 from src.build_timeline import build_timeline_plan, export_timeline_outputs
 from src.config import AppConfig, load_config
 from src.preprocess import load_script, segment_script
@@ -29,13 +35,6 @@ def run_pipeline(config: AppConfig) -> None:
     script_text = load_script(config.script_path)
     segments = segment_script(script_text, max_sentences_per_segment=config.max_sentences_per_segment)
     
-    if config.analysis_mode == "external_llm" and config.external_analysis_path and config.external_analysis_path.exists():
-        print(f"Loading external LLM analysis from {config.external_analysis_path}...")
-        analyses = load_external_analysis(config.external_analysis_path)
-    else:
-        print("Running rule-based analysis (or external JSON not found yet)...")
-        analyses = analyze_segments(segments)
-
     prompts = build_analysis_prompts(segments)
     analysis_requests = build_analysis_requests(
         segments,
@@ -43,14 +42,42 @@ def run_pipeline(config: AppConfig) -> None:
         config.analysis_model,
         config.target_language,
     )
+
+    if config.analysis_mode == "external_llm":
+        if config.external_analysis_path and config.external_analysis_path.exists():
+            print(f"Loading external LLM analysis from {config.external_analysis_path}...")
+            analyses = load_external_analysis(config.external_analysis_path)
+        else:
+            print("External LLM analysis file not found. Attempting to call external analysis provider...")
+            try:
+                analyses = run_llm_analysis(analysis_requests, config.analysis_provider, config.analysis_model)
+                if config.external_analysis_path:
+                    write_json(config.external_analysis_path, [item.to_dict() for item in analyses])
+                    print(f"Saved external analysis output to {config.external_analysis_path}")
+            except Exception as e:
+                print(f"[Warning] External LLM analysis failed: {e}")
+                print("Falling back to rule-based analysis.")
+                analyses = analyze_segments(segments)
+    else:
+        print("Running rule-based analysis...")
+        analyses = analyze_segments(segments)
+
     image_catalog = load_image_catalog(config.image_metadata_path)
-    image_matches = match_images_for_segments(segments, analyses, image_catalog)
+
+    image_matches = match_images_for_segments(
+        segments,
+        analyses,
+        image_catalog,
+        config.image_metadata_path,
+        config.image_strategy,
+    )
     audio_manifest = synthesize_audio_manifest(
         segments,
         config.audio_output_dir,
         config.tts_engine_name,
         config.tts_voice,
         config.external_audio_manifest_path,
+        config.tts_model_path,
     )
     timeline_plan = build_timeline_plan(segments, analyses, audio_manifest, image_matches)
 

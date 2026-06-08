@@ -1,0 +1,198 @@
+\documentclass[a4paper,13pt]{report}
+
+% --- CÁC GÓI THƯ VIỆN CẦN THIẾT ---
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc} 
+\usepackage[vietnamese]{babel} 
+\usepackage{graphicx} 
+\usepackage{hyperref} 
+\usepackage{booktabs} 
+\usepackage{geometry} 
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{
+    a4paper,
+    left=30mm,
+    right=20mm,
+    top=25mm,
+    bottom=25mm,
+}
+\setstretch{1.5} % Dãn dòng 1.5 chuẩn đồ án
+
+% --- THÔNG TIN TRANG BÌA ---
+\title{
+    \vspace{-2cm}
+    \Large \textbf{TRƯỜNG ĐẠI HỌC...} \\
+    \large \textbf{KHOA CÔNG NGHỆ THÔNG TIN} \\
+    \vspace{3cm}
+    \LARGE \textbf{BÁO CÁO ĐỒ ÁN TỐT NGHIỆP} \\
+    \vspace{1cm}
+    \Huge \textbf{HỆ THỐNG TỰ ĐỘNG HÓA SẢN XUẤT VIDEO BẰNG TRÍ TUỆ NHÂN TẠO} \\
+    \Large \textbf{(AI VIDEO ASSISTANT)} \\
+    \vspace{3cm}
+}
+\author{
+    \textbf{Sinh viên thực hiện:} [Tên của bạn] - [Mã SV] \\
+    \textbf{Giáo viên hướng dẫn:} ThS. [Tên GVHD]
+}
+\date{\vspace{2cm} \today}
+
+\begin{document}
+
+\maketitle
+
+% --- LỜI CẢM ƠN ---
+\chapter*{Lời Cảm Ơn}
+\addcontentsline{toc}{chapter}{Lời Cảm Ơn}
+Trong quá trình thực hiện đồ án này, em xin gửi lời cảm ơn sâu sắc đến... (Viết khoảng 1 trang cảm ơn thầy cô, gia đình, bạn bè).
+\newpage
+
+% --- TÓM TẮT ---
+\chapter*{Tóm Tắt Đồ Án}
+\addcontentsline{toc}{chapter}{Tóm Tắt Đồ Án}
+Đồ án này nghiên cứu và phát triển một hệ thống tự động hóa quá trình sản xuất video (AI Video Assistant). Hệ thống ứng dụng các công nghệ Trí tuệ Nhân tạo tiên tiến nhất như: Mô hình ngôn ngữ lớn (Qwen LLM) để phân tích kịch bản, Tìm kiếm hình ảnh bằng Vector (FAISS và CLIP), và đặc biệt là hệ thống tổng hợp giọng nói (TTS) dựa trên kiến trúc Transformer 1.7 tỷ tham số (Qwen3-TTS/CosyVoice). Hệ thống xuất ra file \textbf{.fcpxml} tự động chèn vào phần mềm dựng phim chuyên nghiệp DaVinci Resolve. Đánh giá thực nghiệm cho thấy mô hình TTS tự huấn luyện đạt điểm số Word Error Rate (WER) ấn tượng ở mức 15.75\%, hoàn toàn đáp ứng nhu cầu ứng dụng thực tế. (Viết khoảng nửa trang).
+\newpage
+
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+% ==========================================
+\chapter{Mở Đầu}
+% ==========================================
+
+\section{Lý do chọn đề tài}
+(Viết 2-3 trang)
+Trình bày về sự bùng nổ của mạng xã hội (TikTok, YouTube Shorts). Nhu cầu sản xuất nội dung video ngày càng cao. Tuy nhiên, quy trình dựng phim truyền thống tốn rất nhiều thời gian (lên kịch bản, tìm ảnh minh họa, thu âm giọng đọc, cắt ghép). Sự ra đời của AI mở ra cơ hội tự động hóa quy trình này. Đó là lý do em chọn đề tài...
+
+\section{Mục tiêu nghiên cứu}
+(Viết 1 trang)
+- Nghiên cứu các kiến trúc AI hiện đại (LLM, TTS, Vector Search).
+- Xây dựng một Pipeline tự động từ Text sang Video Timeline.
+- Huấn luyện một mô hình giọng đọc Tiếng Việt tự nhiên mang bản sắc cá nhân (Personalized TTS).
+
+\section{Phạm vi và giới hạn đề tài}
+(Viết 1 trang)
+Hệ thống tập trung xử lý văn bản tiếng Việt. Phần hình ảnh sử dụng thư viện ảnh có sẵn hoặc kéo từ Internet thông qua mô hình CLIP.
+
+% ==========================================
+\chapter{Cơ Sở Lý Thuyết}
+% ==========================================
+
+\section{Mô hình Ngôn ngữ Lớn (Large Language Models - LLM)}
+(Viết 5-7 trang)
+Giới thiệu về kiến trúc Transformer, cơ chế Self-Attention. Giới thiệu dòng mô hình Qwen của Alibaba. Giải thích cách Prompt Engineering được sử dụng để phân tích kịch bản thành các phân cảnh (scene) và cảm xúc (tone).
+
+\section{Xử lý Ngôn ngữ Tự nhiên và Tìm kiếm Ngữ nghĩa (Semantic Search)}
+(Viết 5-7 trang)
+Phân tích sự khác biệt giữa tìm kiếm bằng từ khóa (Keyword-based) và tìm kiếm bằng Vector (Vector-based). 
+\subsection{Mô hình CLIP (Contrastive Language-Image Pre-training)}
+Giải thích cách CLIP đưa hình ảnh và văn bản vào cùng một không gian Vector chung.
+\subsection{Mạng tìm kiếm FAISS}
+Giải thích thuật toán tìm kiếm hàng xóm gần nhất (KNN) và cách FAISS tối ưu hóa tốc độ tìm kiếm ảnh.
+
+\section{Tổng hợp Giọng nói (Text-To-Speech - TTS)}
+(Viết 5-8 trang)
+Giới thiệu lịch sử TTS (Từ ghép âm, Parametric HMM, đến Neural TTS như Tacotron2, VITS).
+\subsection{Kiến trúc Qwen3-TTS / CosyVoice}
+Phân tích sự vượt trội của kiến trúc Zero-shot TTS dùng Audio Codec Modeling so với Mel-spectrogram truyền thống. 
+
+% ==========================================
+\chapter{Phân Tích Và Thiết Kế Hệ Thống}
+% ==========================================
+
+\section{Kiến trúc tổng thể của hệ thống}
+(Viết 2 trang)
+Trình bày sơ đồ khối của hệ thống (Pipeline). (Chèn sơ đồ vào đây).
+Bao gồm 4 bước: (1) Nhập kịch bản $\rightarrow$ (2) Phân tích LLM $\rightarrow$ (3) Truy xuất ảnh và Sinh âm thanh $\rightarrow$ (4) Ghép nối Timeline.
+
+\section{Thiết kế Module Phân tích Kịch bản}
+(Viết 3 trang)
+Giải thích đoạn code \textit{analyze.py}. Cách chia nhỏ câu và gửi JSON request lên API của Qwen.
+
+\section{Thiết kế Module Tìm kiếm Hình ảnh AI}
+(Viết 3-4 trang)
+Giải thích đoạn code \textit{retrieve\_images.py}. Quá trình nhúng câu văn thành Vector độ dài 512, dùng FAISS Index để quét và chấm điểm bức ảnh phù hợp nhất với ngữ cảnh câu nói.
+
+\section{Thiết kế Module Lắp ráp DaVinci Resolve}
+(Viết 3 trang)
+Giải thích cấu trúc file FCPXML. Cách tính toán thời lượng audio để tạo các thẻ \texttt{<clip>} và \texttt{<audio>} trên timeline.
+
+% ==========================================
+\chapter{Thực Nghiệm Và Triển Khai Mô Hình TTS}
+% ==========================================
+
+\section{Thiết lập môi trường phần cứng}
+(Viết 2 trang)
+Hệ thống máy tính cá nhân không đủ tài nguyên VRAM để huấn luyện mô hình 1.7 Tỷ tham số. Do đó, đồ án sử dụng nền tảng điện toán đám mây \textbf{Kaggle} (Cung cấp 2x GPU T4 15GB VRAM).
+
+\section{Quy trình chuẩn bị dữ liệu (Data Preparation)}
+(Viết 3-4 trang)
+Dữ liệu được chuẩn hóa theo chuẩn Kaldi. Giải thích khó khăn khi chuyển đổi file âm thanh sang định dạng Parquet và các kỹ thuật xử lý âm thanh 24kHz.
+
+\section{Huấn luyện mô hình (Fine-Tuning)}
+(Viết 4 trang)
+Giải quyết các bài toán giới hạn:
+- Lỗi tràn bộ nhớ RAM (OOM).
+- Lỗi giới hạn ổ cứng 19.5GB của Kaggle (Disk Quota Exceeded).
+- Áp dụng kỹ thuật nén 8-bit Quantization và tối ưu hóa dọn rác tự động.
+
+\section{Đánh giá kết quả bằng hệ thống tự động}
+(Viết 4-5 trang)
+Sử dụng công cụ nhận diện giọng nói (ASR) Faster-Whisper để chuyển đổi âm thanh do AI sinh ra ngược lại thành văn bản, sau đó dùng hàm \texttt{jiwer} để chấm điểm Word Error Rate (WER).
+
+\subsection{Kết quả định lượng}
+Điểm số WER trung bình đạt được là \textbf{15.75\%}. Đây là mức đánh giá rất cao, chứng minh khả năng đọc trôi chảy tiếng Việt của mô hình.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        \textbf{Phương pháp đánh giá} & \textbf{Tập dữ liệu} & \textbf{Chỉ số WER} \\ \midrule
+        Faster-Whisper (small) & Test Manifest (8 mẫu) & 15.75\% \\ \bottomrule
+    \end{tabular}
+    \caption{Kết quả đánh giá mô hình TTS cá nhân hóa}
+\end{table}
+
+\subsection{Phân tích định tính và nhận định lỗi}
+Các lỗi nhỏ còn tồn tại chủ yếu do hiện tượng Code-switching (Đọc từ vựng tiếng Anh lai tiếng Việt, ví dụ: "handshaking lemma") hoặc lỗi không đọc đúng quy chuẩn các con số ("1.000 likes") do hệ thống hiện tại chưa tích hợp module Text Normalization. Tuy nhiên, về mặt cảm xúc và sự tự nhiên, mô hình hoàn toàn vượt trội so với các công cụ TTS truyền thống.
+
+% ==========================================
+\chapter{Kết Luận Và Hướng Phát Triển}
+% ==========================================
+
+\section{Kết luận}
+(Viết 1 trang)
+Tóm tắt lại toàn bộ khối lượng công việc khổng lồ đã thực hiện được. Khẳng định đề tài đã thành công tự động hóa một quy trình phức tạp.
+
+\section{Hướng phát triển trong tương lai}
+(Viết 1 trang)
+- Tích hợp bộ Text Normalization riêng cho tiếng Việt.
+- Bổ sung giao diện Web (Web UI) để người dùng không biết code cũng có thể sử dụng.
+
+% --- TÀI LIỆU THAM KHẢO ---
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Tài Liệu Tham Khảo}
+
+\bibitem{qwen}
+Alibaba Cloud, \textit{Qwen Audio Models Documentation}, 2024.
+
+\bibitem{faiss}
+Johnson, Jeff, et al. \textit{"Billion-scale similarity search with GPUs."} IEEE Transactions on Big Data 7.3 (2019): 535-547.
+
+\bibitem{clip}
+Radford, Alec, et al. \textit{"Learning transferable visual models from natural language supervision."} International conference on machine learning. PMLR, 2021.
+
+\bibitem{whisper}
+Radford, Alec, et al. \textit{"Robust speech recognition via large-scale weak supervision."} International Conference on Machine Learning. PMLR, 2023.
+
+\end{thebibliography}
+
+\end{document}

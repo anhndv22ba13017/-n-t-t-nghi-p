@@ -1,0 +1,45 @@
+{
+  "average_wer": 0.1575488663084571,
+  "details": [
+    {
+      "text": "Hay còn gọi là handshaking lemma",
+      "whisper": "Hay còn gọi là hand-seeking Glema",
+      "wer": 0.3333333333333333
+    },
+    {
+      "text": "số lượng những người có số bạn bè là lẻ luôn luôn làm một con số chẳng",
+      "whisper": "số lượng những người có số bạn bè là lẻ, luôn luôn là một con số chẳng.",
+      "wer": 0.058823529411764705
+    },
+    {
+      "text": "Tiếp theo, chúng ta đến với một khai niệm. Nghe nó rất là nguy hiểm nhưng trực chất nó rất là ràng dị.",
+      "whisper": "Tiếp theo, chúng ta đến với một khai nghiệm, nghe nó rất là nguy hiểm nhưng trực chất nó rất là ràng gì.",
+      "wer": 0.08695652173913043
+    },
+    {
+      "text": "Tại sao số lượng ông lẻ lại phải là số lượng ông chẳng",
+      "whisper": "Tại sao số lượng ông lẻ lại phải là số lượng ông chẵn",
+      "wer": 0.09090909090909091
+    },
+    {
+      "text": "Mỗi cạnh của đồ thị sẽ đóng góp hai bậc vào tổng số bậc của tất cả các đỉnh",
+      "whisper": "Mỗi cạnh của đồ thị sẽ đóng góp hai bậc vào tổng số bậc của tất cả các đỉnh",
+      "wer": 0.0
+    },
+    {
+      "text": "Và như vậy, tổng số bậc của tất cả các đỉnh trong một đồ thị phải luôn luôn là một số chẵn",
+      "whisper": "Và như vậy tổng số bậc của tất cả các đỉnh trong một đồ thị phải luôn luôn là một số chẵn",
+      "wer": 0.0
+    },
+    {
+      "text": "Xin chào tất cả các bạn, chào mừng các bạn đã quay trở lại với kênh AI Video Assistant",
+      "whisper": "Xin chào tất cả các bạn, chào mừng các bạn đã quay trở lại với kênh AI Video Assistant",
+      "wer": 0.0
+    },
+    {
+      "text": "Video này tôi sẽ hướng dẫn các bạn cách dùng trí tuệ nhân tạo để tự động hóa mọi thứ",
+      "whisper": "Video này tôi sẽ hướng dẫn các bạn cách dùng trí tuệ nhân tạo để tự động hoá mọi thứ",
+      "wer": 0.0
+    }
+  ]
+}

@@ -16,6 +16,7 @@ class AppConfig:
     max_sentences_per_segment: int
     tts_engine_name: str
     tts_voice: str
+    tts_model_path: Path | None
     external_audio_manifest_path: Path | None
     analysis_mode: str
     analysis_provider: str
@@ -37,6 +38,7 @@ class AppConfig:
             "max_sentences_per_segment": self.max_sentences_per_segment,
             "tts_engine_name": self.tts_engine_name,
             "tts_voice": self.tts_voice,
+            "tts_model_path": str(self.tts_model_path) if self.tts_model_path else None,
             "external_audio_manifest_path": str(self.external_audio_manifest_path) if self.external_audio_manifest_path else None,
             "analysis_mode": self.analysis_mode,
             "analysis_provider": self.analysis_provider,
@@ -66,6 +68,7 @@ def load_config(config_path: Path) -> AppConfig:
         max_sentences_per_segment=payload.get("max_sentences_per_segment", 2),
         tts_engine_name=payload.get("tts_engine_name", "edge_tts"),
         tts_voice=payload.get("tts_voice", "vi-VN-HoaiMyNeural"),
+        tts_model_path=(root / payload["tts_model_path"]) if payload.get("tts_model_path") else None,
         external_audio_manifest_path=(root / external_audio_manifest) if external_audio_manifest else None,
         analysis_mode=payload.get("analysis_mode", "rule_based"),
         analysis_provider=payload.get("analysis_provider", "local"),
