@@ -1,8 +1,8 @@
 [
   {
     "segment_id": 1,
-    "audio_path": "c:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_01.wav",
-    "duration_seconds": 6.24,
+    "audio_path": "C:/Users/HUYMANH COMPUTER/Desktop/Đồ án/data/outputs/audio/segment_01.wav",
+    "duration_seconds": 6.32,
     "engine": "qwen",
     "status": "generated"
   }

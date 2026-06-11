@@ -2,6 +2,6 @@
   {
     "segment_id": 1,
     "text": "Tôi là đạt tôi là một học sinh năm cuối , tôi rất thích đọc sách và nghe nhạc Tôi thích chơi bi a và cầu lồng",
-    "prompt": "Analyze this video narration segment and return JSON with keys `keywords`, `scene`, `tone`, `summary`, `visuals`, and `narration_style`: Tôi là đạt tôi là một học sinh năm cuối , tôi rất thích đọc sách và nghe nhạc Tôi thích chơi bi a và cầu lồng"
+    "prompt": "Analyze this video narration segment and return strict JSON with keys: `keywords`, `scene`, `tone`, `summary`, `visuals`, `narration_style`, `actions`, `context`, and `emotional_tone`. Describe the scene, emotion, and appropriate visual ideas. Text: Tôi là đạt tôi là một học sinh năm cuối , tôi rất thích đọc sách và nghe nhạc Tôi thích chơi bi a và cầu lồng"
   }
 ]

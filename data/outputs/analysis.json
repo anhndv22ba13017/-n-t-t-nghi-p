@@ -16,7 +16,10 @@
       "light",
       "washes"
     ],
-    "narration_style": "natural and balanced"
+    "narration_style": "natural and balanced",
+    "actions": [],
+    "context": "",
+    "emotional_tone": "neutral"
   },
   {
     "segment_id": 2,
@@ -36,7 +39,10 @@
       "rain",
       "arrives"
     ],
-    "narration_style": "slow and warm"
+    "narration_style": "slow and warm",
+    "actions": [],
+    "context": "",
+    "emotional_tone": "calm"
   },
   {
     "segment_id": 3,
@@ -56,6 +62,9 @@
       "clears",
       "story"
     ],
-    "narration_style": "natural and balanced"
+    "narration_style": "natural and balanced",
+    "actions": [],
+    "context": "",
+    "emotional_tone": "neutral"
   }
 ]

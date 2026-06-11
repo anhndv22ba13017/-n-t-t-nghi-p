@@ -23,7 +23,12 @@
       "visuals": [
         "string"
       ],
-      "narration_style": "string"
+      "narration_style": "string",
+      "actions": [
+        "string"
+      ],
+      "context": "string",
+      "emotional_tone": "string"
     }
   }
 ]
