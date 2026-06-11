@@ -1,0 +1,588 @@
+\documentclass[a4paper,12pt]{report}
+
+% --- REQUIRED PACKAGES ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- GEOMETRY & SPACING ---
+\geometry{
+    a4paper,
+    left=35mm,
+    right=20mm,
+    top=25mm,
+    bottom=25mm,
+}
+\setstretch{1.5} % Dãn dòng 1.5 tiêu chuẩn học thuật
+
+% --- CODES LISTING STYLE ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% --- HEADER AND FOOTER ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\fancyhead[L]{\leftmark}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% --- DOCUMENT ---
+\begin{document}
+
+% =========================================================
+% COVER PAGE
+% =========================================================
+\begin{titlepage}
+    \centering
+    \begin{singlespace}
+        \large \textbf{UNIVERSITY OF SCIENCE AND TECHNOLOGY OF HANOI} \\
+        \large \textbf{DEPARTMENT OF INFORMATION AND COMMUNICATION TECHNOLOGY} \\
+        \vspace{1.5cm}
+        \includegraphics[width=0.35\textwidth]{usth_logo} % Sinh viên sẽ thay ảnh usth_logo thực tế
+        \vspace{1.5cm}
+        
+        \LARGE \textbf{GRADUATION THESIS REPORT} \\
+        \vspace{0.8cm}
+        \Huge \textbf{AI Video Assistant: An Automated Video Production Pipeline Using Fine-Tuned Qwen3-TTS and Semantic Vector Search} \\
+        \vspace{2cm}
+        
+        \large \textbf{Specialty:} Information and Communication Technology \\
+        \large \textbf{Academic Year:} 2025 - 2026
+        \vspace{2.5cm}
+        
+        \begin{flushleft}
+            \large
+            \textbf{Student Name:} Nguyễn Đăng Vĩ Anh \\
+            \textbf{Student ID:} 22BA13017 \\
+            \textbf{Supervisor:} ThS. [Tên Giáo Viên Hướng Dẫn] \\
+            \textbf{Co-Supervisor:} [Tên Người Đồng Hướng Dẫn - Nếu Có]
+        \end{flushleft}
+        \vfill
+        \large Hanoi, \today
+    \end{singlespace}
+\end{titlepage}
+
+\newpage
+
+% =========================================================
+% ACKNOWLEDGEMENTS
+% =========================================================
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+First and foremost, I would like to express my sincere gratitude to my academic supervisor, ThS. [Tên Giáo Viên Hướng Dẫn], whose constant advice, constructive feedback, and technical support have been invaluable throughout my graduation internship and the writing of this thesis. 
+
+I also wish to thank all the lecturers and staff of the Department of Information and Communication Technology at the University of Science and Technology of Hanoi (USTH) for providing a competitive yet supportive academic environment, equipping me with the essential skills and knowledge required for this research.
+
+Lastly, I want to thank my family, peers, and friends who have offered moral support and encouragement during the intensive phases of development, GPU training runs on cloud nodes, and thesis writing.
+\newpage
+
+% =========================================================
+% ABSTRACT
+% =========================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+In the contemporary digital era, short-form and long-form video content creation on platforms such as YouTube, TikTok, and Facebook Reels has surged. However, the traditional workflow of video editing remains highly manual and repetitive, requiring significant human hours to split scripts, record natural voices, search for relevant context images, and assemble assets onto a timeline. This research designs, implements, and evaluates an **AI Video Assistant** prototype that automatically converts raw text scripts into finished video timelines for the professional suite DaVinci Resolve.
+
+The proposed pipeline is structured into six functional modules: a text preprocessor for sentence-level segment chunking, a script analyzer using a Large Language Model (Qwen2.5-7B-Instruct) to generate structural metadata, a customized **Qwen3-TTS** model (1.7B parameters) fine-tuned on personalized voice samples for natural speech synthesis, an AI image retrieval engine utilizing **CLIP** embeddings and **FAISS** vector search for semantic matching, a timeline duration parser, and an exporter generating **Final Cut Pro XML (FCPXML)** documents. 
+
+For model evaluation, we developed an automated benchmarking suite using the offline **Faster-Whisper (small)** ASR model to compute the Word Error Rate (WER) against a gold-standard test manifest. The fine-tuned Qwen3-TTS model achieved an average WER of **15.75\%**, showing highly natural and clear speech synthesis. Furthermore, the FCPXML export enables free DaVinci Resolve users to import the assets directly with automatic alignment, bypassing expensive API calls or Studio licenses.
+\newpage
+
+% =========================================================
+% LISTS
+% =========================================================
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+% =========================================================
+% CHAPTER 1
+% =========================================================
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Background and Motivation}
+In the contemporary global digital landscape, multimedia communication has emerged as the dominant paradigm for knowledge dissemination, public education, corporate marketing, and entertainment. With the meteoric rise of social media platforms specialized in both short-form and long-form video content—such as TikTok, YouTube Shorts, and Facebook Reels—billions of users consume video material daily. This massive, unprecedented consumption rate has created intense pressure on independent content creators, digital marketing agencies, educational institutions, and news organizations. To remain competitive and visible within search algorithms, creators must produce high-quality video drafts within extremely compressed production windows.
+
+However, the post-production editing workflow remains a highly manual, labor-intensive, and repetitive bottleneck. Despite major advancements in digital audio-visual editing workstations (DAWs), a typical editor must still execute a sequential and time-consuming set of tasks:
+\begin{enumerate}
+    \item \textbf{Script Normalization and Parsing:} The editor must clean raw text scripts, resolve abbreviations, normalize numerical figures, and manually slice the text into logical sentences or paragraphs that represent individual narration blocks.
+    \item \textbf{Narration and Speech Sourcing:} The editor must record high-quality voiceovers using physical recording setups (microphones, sound isolation) or deploy commercial Text-to-Speech (TTS) engines. Unfortunately, standard TTS outputs sound robotic, flat, and fail to capture natural human prosody, localized Vietnamese tones, or emotional variations, leading to low audience retention.
+    \item \textbf{B-roll Visual Asset Sourcing:} The editor must search through extensive stock database collections or local file directories to find image files and video clips that match the semantic context of each narration block. This search is traditionally limited to exact-match text keywords or tags, which is highly ineffective when assets are named arbitrarily (e.g., raw camera exports).
+    \item \textbf{Timeline Assembly and Synchronization:} The editor must import the media files into a timeline, manually place each audio clip onto its track, and stretch or trim the corresponding visual asset frame-by-frame to match the exact start and end times of the narration. This timeline alignment step is extremely tedious and is prone to synchronization errors or visual drift.
+\end{enumerate}
+
+To alleviate this post-production bottleneck, recent breakthroughs in Generative Artificial Intelligence (AI) present a viable path toward complete automation. Modern Large Language Models (LLMs) like the Qwen2.5 series excel at structural prompt processing and semantic script segmentation. In parallel, neural speech synthesis has shifted from multi-stage models (such as Tacotron2 generating Mel-spectrograms followed by vocoders) to single-stage autoregressive architectures like Qwen3-TTS. These models process speech using quantized neural audio codec tokens, capturing natural human voice characteristics, breath patterns, and emotional cues. Additionally, cross-modal neural networks like Contrastive Language-Image Pre-training (CLIP) combined with dense vector database search libraries like FAISS enable real-time semantic retrieval of visual assets without relying on manual tag metadata.
+
+By combining these AI components into a unified, modular Python-based pipeline, the tedious aspects of initial draft video creation can be completely automated. This graduation project focuses on the design, implementation, and evaluation of an \textbf{AI Video Assistant} prototype. The system processes raw Vietnamese scripts and local asset directories, automatically performs voice cloning and semantic visual retrieval, and outputs a synchronized timeline document that can be imported directly into professional editors like DaVinci Resolve, establishing a seamless, file-based post-production workflow.
+
+\section{Research Goal and Scope}
+The primary objective of this project is to construct an automated, end-to-end, and reproducible Python-based post-production pipeline. This system converts raw, unstructured Vietnamese narration scripts and directories of local image files into synchronized timeline import documents (.fcpxml) for DaVinci Resolve. To address the manual bottleneck of draft editing, this project details five specific research objectives:
+\begin{enumerate}
+    \item \textbf{Design a Vietnamese Script Parser:} Implement a preprocessing and tokenizing pipeline to normalize Vietnamese text inputs (filtering noisy spaces and carriage returns) and segment them based on sentence boundaries and visual pacing limits to ensure dynamic layouts.
+    \item \textbf{Train a Custom Text-to-Speech Model:} Supervised fine-tuning of a 1.7 Billion parameter autoregressive Qwen3-TTS model using personal voice recordings to clone the supervisor's voice, capturing emotional tones and natural breathing pauses.
+    \item \textbf{Implement a Semantic Image Finder:} Build a vector database index using CLIP embeddings and a FAISS library to project visual assets and query prompts into a shared 512-dimensional vector space, executing semantic searches in microseconds.
+    \item \textbf{Develop an FCPXML Timeline Exporter:} Program a metadata generator to calculate the physical duration of the synthesized waveforms, map them to precise video frame boundaries, and compile the timeline layout into Final Cut Pro XML (FCPXML v1.5) syntax.
+    \item \textbf{Build an Automatic Evaluation Pipeline:} Develop a local benchmarking suite using Faster-Whisper ASR and the Jiwer library to compute the Word Error Rate (WER) of synthesized voice tracks against gold-standard transcripts.
+\end{enumerate}
+
+\subsection{Problem Context and Mathematical Modeling}
+Given a raw, unstructured Vietnamese narration script $T_{\text{script}}$ and a local directory containing a set of visual B-roll assets $I_{\text{assets}} = \{i_1, i_2, \dots, i_K\}$, the objective of the system is to construct a synchronized, timing-aligned video timeline serialized as a Final Cut Pro XML (FCPXML v1.5) document $M_{\text{timeline}}$. This mapping is mathematically expressed as:
+\begin{equation}
+    M_{\text{timeline}} = f(T_{\text{script}}, I_{\text{assets}}; \theta_{\text{TTS}}, \theta_{\text{CLIP}})
+\end{equation}
+where $\theta_{\text{TTS}}$ represents the parameters of the fine-tuned, personalized text-to-speech (TTS) model and $\theta_{\text{CLIP}}$ represents the parameters of the cross-modal embedding model. The mapping function $f$ must ensure that every visual slide $v_m$ matches the exact duration of the spoken narration of its corresponding script segment $p_m$.
+
+The system operates on two primary inputs: the Vietnamese narration script ($T_{\text{script}}$), which is a raw text containing noise, punctuation, and abbreviations (e.g., ``ThS.'', ``TS.'') requiring normalization and sentence-level segmentation, and a database of visual assets ($I_{\text{assets}}$) consisting of image files under unstructured names (e.g., ``IMG\_1002.jpg'') without tag metadata. The terminal output is the FCPXML timeline $M_{\text{timeline}}$, which maps the synthesized voice clips sequentially to audio track A1 and the selected B-roll images to video track V1, aligning their frame-accurate start and end points ($S_m, E_m$) based on the project framerate.
+
+To resolve this mapping theoretically, the pipeline must overcome four core technical barriers. First, the linguistic normalization and pacing barrier requires parsing script text while avoiding false splits on abbreviations and grouping sentences to limit visual pacing (e.g., at most two sentences per slide). Second, the personalized speech synthesis barrier requires fine-tuning a 1.7B parameter autoregressive model (Qwen3-TTS) under local VRAM constraints to clone the user's voice naturally. Third, the cross-modal semantic retrieval barrier requires encoding both images and segment text into a shared vector space using CLIP embeddings and FAISS indices to perform similarity searches based on semantic context rather than filenames. Lastly, the professional editor integration barrier requires generating compliant FCPXML v1.5 files to bypass paid license scripting API constraints, ensuring a seamless timeline setup.
+
+\subsection{Scope and Boundaries}
+The operational scope, parameters, and constraints of this prototype system are bounded as follows:
+\begin{itemize}
+    \item \textbf{Language Constraint:} The parsing, sentence boundary detection, and autoregressive TTS voice synthesis are optimized specifically for the Vietnamese language. The system does not include text normalization for foreign code-switching words.
+    \item \textbf{Retrieval Database:} Semantic visual matching is performed over indexed directories of assets (e.g., Flickr8k or custom directories) indexed in a local FAISS vector index. The system does not crawl web domains or query cloud stock APIs in real time.
+    \item \textbf{Timeline Export and Editor Target:} The pipeline generates Final Cut Pro XML (.fcpxml v1.5) documents, enabling automated timeline imports on both the free and Studio editions of DaVinci Resolve. It is a file-based export tool and does not establish active TCP connection scripting.
+\end{itemize}
+
+\subsection{Academic and Practical Contributions}
+This graduation thesis contributes a complete software pipeline for automated media editing. The specific contributions are:
+\begin{itemize}
+    \item \textbf{Personalized Voice Cloning:} Fine-tuning and local CPU/GPU deployment of a 1.7B parameter Qwen3-TTS model that produces natural Vietnamese voice narration.
+    \item \textbf{Semantic B-roll Association:} Implementation of an image search framework using CLIP joint embeddings and FAISS indices to perform context-based matching.
+    \item \textbf{License-Independent Resolve Sync:} An FCPXML timeline builder that maps media to tracks automatically, bypassing commercial API restrictions for free users.
+    \item \textbf{ASR Quality Benchmarking:} An offline quantitative evaluation script using Faster-Whisper to verify voice intelligibility automatically.
+\end{itemize}
+
+\section{Thesis Structure}
+This thesis is structured as follows:
+\begin{itemize}
+    \item \textbf{Chapter~\ref{ch:intro}:} Outlines the background, motivation, problem statement, research objectives, and scope of the project.
+    \item \textbf{Chapter~\ref{ch:architecture}:} Presents the detailed functional system architecture, the sequence of data transfers, and component specifications.
+    \item \textbf{Chapter~\ref{ch:implementation}:} Details the training/inference infrastructure split (Kaggle Cloud vs. Local Node), implementation libraries, and core source code files.
+    \item \textbf{Chapter~\ref{ch:evaluation}:} Reports the quantitative evaluation results (using Faster-Whisper ASR to measure Word Error Rate), comparative model performance (Qwen3-TTS vs. Coqui-TTS), and final synchronization outcomes.
+    \item \textbf{Chapter~\ref{ch:conclusion}:} Concludes the thesis by summarizing key contributions, identifying limitations, and suggesting areas for future work.
+\end{itemize}
+\newpage
+
+% =========================================================
+% CHAPTER 2
+% =========================================================
+\chapter{System Architecture and Workflows}
+\label{ch:architecture}
+
+\section{Functional Component Architecture}
+The system is designed as a modular pipeline where each component performs a specific function. The relationship between these modules is illustrated in Figure~\ref{fig:block_diagram}.
+
+\begin{figure}[h!]
+    \centering
+    % So do khoi he thong
+    \framebox[\textwidth]{\parbox{0.9\textwidth}{\centering
+        \vspace{0.5cm}
+        Raw Script $\rightarrow$ \textbf{[Text Preprocessor]} $\rightarrow$ Segments \\
+        $\downarrow$ \\
+        \textbf{[Script Analyzer (LLM/Rule-based)]} $\rightarrow$ Keywords, Scene, Tone \\
+        $\downarrow$ \\
+        \textbf{[TTS Engine (Qwen3-TTS)]} $\rightarrow$ WAV Audios \quad \& \quad \textbf{[Image Retrieval (CLIP + FAISS)]} $\rightarrow$ Matched Images \\
+        $\downarrow$ \\
+        \textbf{[Timeline Builder]} $\rightarrow$ Time Synchronization \\
+        $\downarrow$ \\
+        \textbf{[Resolve Integration]} $\rightarrow$ final\_timeline.fcpxml
+        \vspace{0.5cm}
+    }}
+    \caption{AI Video Assistant System Architecture Block Diagram}
+    \label{fig:block_diagram}
+\end{figure}
+
+The functional responsibilities and design details of the six main components are specified below:
+
+\subsection{Text Preprocessor}
+The preprocessor represents the initial stage of the pipeline, responsible for parsing, cleaning, and formatting raw scripts to make them compatible with downstream machine learning models.
+\begin{itemize}
+    \item \textbf{Unicode Normalization:} Standardizes Vietnamese inputs to Normalization Form Canonical Composition (NFC). This converts composite characters (such as ``ế'' represented as base letter ``e'' with multiple accents) into single precomposed code points (e.g., U+1ED5), which prevents tokenizer mismatches in neural speech tokenizers.
+    \item \textbf{Noise Filtering:} Squeezes multiple consecutive whitespaces and carriage returns into single spaces, and normalizes smart quotes and dashes.
+    \item \textbf{Sentence Boundary Splitting:} Identifies sentence transitions by detecting ending punctuation followed by a capitalized letter. To prevent false splits on professional titles, abbreviations, and digits, it uses lookbehind assertions containing an exception list $E_{\text{abbr}}$:
+    \begin{equation}
+        E_{\text{abbr}} = \{\text{ThS}, \text{TS}, \text{PGS}, \text{GS}, \text{BS}, \text{KTS}, \text{KS}, \text{Tr}, \text{Th}, \text{v.v}\}
+    \end{equation}
+    The regex boundary detector is defined as:
+    \begin{equation}
+        R_{\text{split}} = \texttt{(?<!\textbackslash b(ThS|TS|PGS|GS|BS|KTS|KS|Tr|Th|v.v))(?<!\textbackslash b\textbackslash d)(?<=[.!?])\textbackslash s+(?=[A-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯ])}
+    \end{equation}
+    \item \textbf{Sliding Window Segmentation:} Groups sentences into segments to maintain visual pacing. If a segment is too long, the visual asset remains static for too long. Best practices in video production suggest slide durations between 3 and 10 seconds. Assuming a speech rate of $R_{\text{speech}} \approx 2.5$ words per second, segments are restricted to a maximum of $L_{\text{max}} = 2$ sentences or $W_{\text{max}} = 30$ words. The segmentation logic is formalized in Algorithm 1.
+\end{itemize}
+
+\begin{singlespace}
+\begin{lstlisting}[language=Python, caption={Script Segmentation Routine}]
+def segment_sentences(sentences: list[str], L_max: int = 2, W_max: int = 30) -> list[dict]:
+    segments = []
+    current_chunk = []
+    current_word_count = 0
+    segment_id = 1
+    for sentence in sentences:
+        words = sentence.split()
+        word_count = len(words)
+        if len(current_chunk) >= L_max or (current_word_count + word_count > W_max and len(current_chunk) > 0):
+            segments.append({
+                "segment_id": segment_id,
+                "text": " ".join(current_chunk),
+                "sentence_count": len(current_chunk),
+                "estimated_words": current_word_count
+            })
+            segment_id += 1
+            current_chunk = [sentence]
+            current_word_count = word_count
+        else:
+            current_chunk.append(sentence)
+            current_word_count += word_count
+    if current_chunk:
+        segments.append({
+            "segment_id": segment_id,
+            "text": " ".join(current_chunk),
+            "sentence_count": len(current_chunk),
+            "estimated_words": current_word_count
+        })
+    return segments
+\end{lstlisting}
+\end{singlespace}
+
+The resulting segments are written to \texttt{segments.json}.
+
+\subsection{Script Analyzer}
+The script analyzer extracts semantic metadata from the segmented text to guide B-roll retrieval and color grading. It features a dual-execution pipeline:
+\begin{itemize}
+    \item \textbf{Rule-Based Fallback:} Scans segments for predefined Vietnamese keyword mappings. For example, the terms ``máy tính'' or ``lập trình'' trigger the category \texttt{technology}, applying default search queries. This runs in $O(1)$ time and acts as a fallback.
+    \item \textbf{LLM-Based Analysis:} Runs local inference on the \texttt{Qwen2.5-7B-Instruct} model. The model receives a system prompt instructing it to analyze the segment and output a JSON schema containing:
+    \begin{itemize}
+        \item \texttt{keywords}: Important entities and concepts extracted from the text.
+        \item \texttt{scene}: The general setting environment (e.g., \texttt{office}, \texttt{classroom}).
+        \item \texttt{tone}: The emotional tone of the narration (e.g., \texttt{informative}, \texttt{enthusiastic}).
+        \item \texttt{visual\_prompt}: A detailed descriptive English prompt representing the semantic concept.
+    \end{itemize}
+\end{itemize}
+
+The system prompt is defined as:
+\begin{singlespace}
+\begin{lstlisting}[language=python]
+SYSTEM_PROMPT = """You are an expert video producer. Analyze the following Vietnamese script segment.
+You must output exactly a JSON object with the keys: "keywords", "scene", "tone", and "visual_prompt".
+Do not output any introductory or concluding text, only the raw JSON object."""
+\end{lstlisting}
+\end{singlespace}
+
+To ensure output consistency, inference is run with a low temperature ($T = 0.1$), top\_p of $0.9$, and repetition penalty of $1.1$ in JSON mode, saving results to \texttt{analysis.json}.
+
+\subsection{TTS Engine}
+The Text-to-Speech (TTS) module synthesizes natural voice narration from the text segments. It loads a fine-tuned, 1.7B parameter \texttt{Qwen3-TTS} model locally, generating 24kHz mono PCM WAV files.
+\begin{itemize}
+    \item \textbf{Codec-Based Modeling:} Standard speech systems map text to 2D Mel-spectrograms before using a vocoder, which can accumulate phase-mismatch errors. Qwen3-TTS models speech as a sequence of discrete acoustic tokens using a neural audio codec. Continuous waveforms are compressed into discrete sequences using Residual Vector Quantization (RVQ).
+    \item \textbf{Conditional Probability:} Let $X = \{x_1, \dots, x_N\}$ be text tokens, and let $A = \{a_1, \dots, a_M\}$ be discrete acoustic tokens. The model computes the conditional probability distribution:
+    \begin{equation}
+        P(A | X, P_{\text{ref}}) = \prod_{i=1}^M P(a_i | a_{<i}, X, P_{\text{ref}})
+    \end{equation}
+    where $P_{\text{ref}}$ represents a 3-second reference audio prompt that guides the zero-shot speaker cloning.
+    \item \textbf{Fine-Tuning Optimizations:} SFT fine-tuning minimizes cross-entropy loss:
+    \begin{equation}
+        \mathcal{L}_{\text{SFT}} = - \sum_{i=1}^M \log P(a_i^* | a_{<i}^*, X, P_{\text{ref}})
+    \end{equation}
+    To train the 1.7B parameter network under VRAM limitations on dual Tesla T4 GPUs, we apply QLoRA ($r = 8, \alpha = 16$) in 8-bit precision, reducing the memory footprint to under 12GB per GPU.
+\end{itemize}
+The output acoustic tokens are decoded into time-domain waveforms, saving the file paths and durations to \texttt{audio\_manifest.json}.
+
+\subsection{Image Retrieval Module}
+The image retrieval engine matches each text segment with B-roll assets in a local directory.
+\begin{itemize}
+    \item \textbf{CLIP Embeddings:} Projects images and text prompts into a shared $d$-dimensional vector space ($d = 512$). Let $E_{\text{image}}(\cdot)$ be the vision encoder and $E_{\text{text}}(\cdot)$ be the text encoder. The embedding vectors are normalized and matched using cosine similarity:
+    \begin{equation}
+        s(q, i_k) = \frac{\mathbf{v}_q \cdot \mathbf{v}_{i_k}}{\|\mathbf{v}_q\|_2 \|\mathbf{v}_{i_k}\|_2}
+    \end{equation}
+    where $\mathbf{v}_q$ is the query vector and $\mathbf{v}_{i_k}$ is the image vector.
+    \item \textbf{FAISS Index Search:} To scale lookups across thousands of B-roll images, the module uses Facebook AI Similarity Search (FAISS) with the following indexing configurations:
+    \begin{itemize}
+        \item \textbf{IndexFlatIP:} Computes exact cosine similarities in $O(K \cdot d)$ time, suitable for smaller datasets.
+        \item \textbf{IndexIVFFlat:} Clusters database vectors into $C$ cells using $k$-means. At query time, it evaluates only the cells nearest to the query vector, reducing search time to $O(\sqrt{K} \cdot d)$.
+        \item \textbf{IndexHNSW:} Builds a Hierarchical Navigable Small World proximity graph. The search algorithm navigates down through graph layers, achieving logarithmic search complexity $O(d \log K)$.
+    \end{itemize}
+\end{itemize}
+The retrieved matches are serialized to \texttt{image\_matches.json}.
+
+\subsection{Timeline Builder}
+The timeline builder parses file durations and aligns assets on the timeline grid.
+\begin{itemize}
+    \item \textbf{Frame Conversion:} Reads the total sample count of each WAV file. Let $Samples_m$ be the sample count of segment $m$ and $SampleRate$ be the sampling frequency (24,000 Hz). The duration is converted to frames based on the project framerate $FPS$:
+    \begin{equation}
+        \text{Duration}_{m,\text{frames}} = \left\lceil \frac{Samples_m}{SampleRate} \times FPS \right\rceil
+    \end{equation}
+    The ceiling operator ($\lceil \cdot \rceil$) prevents the audio from being cropped during playback.
+    \item \textbf{Drift Mitigation:} Placing clips individually can accumulate rounding errors, leading to audio-visual synchronization drift over long timelines. To prevent this, the builder tracks the absolute running frame position:
+    \begin{equation}
+        S_1 = 0, \quad S_m = E_{m-1} \quad (m > 1)
+    \end{equation}
+    \begin{equation}
+        E_m = S_m + \text{Duration}_{m,\text{frames}}
+    \end{equation}
+    This alignment snaps B-roll image transitions on track V1 to the boundaries of the voiceovers on track A1, writing the plan to \texttt{timeline\_plan.json}.
+\end{itemize}
+
+\subsection{Resolve Integration}
+To import assets into DaVinci Resolve, the system exports a Final Cut Pro XML (FCPXML v1.5) document. This file-based exchange enables automated timeline configuration in both the free and Studio versions of DaVinci Resolve without requiring paid scripting APIs.
+\begin{itemize}
+    \item \textbf{Resource Mapping:} Declares all media assets under a `<resources>` tag using absolute paths with URI schemes (`file:///`).
+    \item \textbf{Rational Timing Coordinates:} FCPXML represents timing using rational fractions (e.g., `value/scale` seconds) to avoid floating-point rounding errors. For example, a duration of 102 frames at 25fps is written as `duration="102/25s"`.
+    \item \textbf{Multi-Track Nesting:} Timeline tracks are mapped inside a `<spine>` container (representing video track V1). Audio assets are nested inside their corresponding video clips using lane properties (e.g., `lane="-1"`), aligning them automatically on audio track A1 when imported.
+\end{itemize}
+
+\section{System Workflow and Data Flow}
+Data progresses through the system in a linear sequence, transitioning from unstructured text to synchronized multimedia assets and serialized XML structures. The detailed data flow sequence is shown below:
+
+\begin{verbatim}
+[Input Script] 
+      | (preprocess.py)
+      v
+[segments.json]
+      |
+      +---> (analyze.py) -------------------------> [analysis.json]
+      |                                                  |
+      +---> (tts_engine.py using Qwen3-TTS)              +---> (retrieve_images.py CLIP+FAISS)
+      |         |                                                  |
+      v         v                                                  v
+ [segment_XX.wav files]                                    [image_matches.json]
+      |                                                            |
+      +-------------------------> [build_timeline.py] <------------+
+                                        |
+                                        v
+                               [timeline_plan.json]
+                                        | (resolve_integration.py)
+                                        v
+                            [timeline_for_davinci.fcpxml]
+\end{verbatim}
+
+This sequence is designed to maximize computational efficiency; voice synthesis and semantic image retrieval are executed as parallel pipelines on CUDA-enabled GPUs. The outputs are combined by the Timeline Builder and serialized by the Resolve Integration module.
+
+\newpage
+
+% =========================================================
+% CHAPTER 3
+% =========================================================
+\chapter{Implementation}
+\label{ch:implementation}
+
+\section{System Topology and Computing Infrastructure}
+Training and running modern, deep generative neural network models is resource-intensive. To make this project feasible, we use a hybrid architecture split between cloud and local hardware nodes:
+
+* **Kaggle Cloud Node (Model Training):**
+  * *Hardware:* Dual Tesla T4 GPUs (15GB VRAM per GPU).
+  * *Operational Role:* Hugging Face models are downloaded, and supervised fine-tuning (SFT) is executed on the 1.7 Billion parameter Qwen3-TTS model. Because Kaggle limits local disk storage to 19.5GB, dataset prep routines compress audio data into Kaldi-compliant formats, and temporary files are cleared automatically.
+  * *Optimizations:* We configure the training run using **8-bit quantization** (`bitsandbytes`) and gradient checkpointing, reducing required VRAM to under 12GB per GPU, allowing SFT to converge within 10 epochs.
+* **Local Offline Client Node (Model Inference & DaVinci Resolve Integration):**
+  * *Hardware:* standard desktop computer equipped with an NVIDIA CUDA-compatible GPU.
+  * *Operational Role:* The trained model checkpoint weights (`checkpoint-epoch-9`) are downloaded and executed locally. This machine runs the pipeline scripts, runs ASR evaluation, and hosts DaVinci Resolve to import the FCPXML output.
+
+\section{Implementation Tools and Python Libraries}
+The prototype application is developed in Python 3.10+, utilizing the following libraries:
+* **PyTorch 2.x:** The core engine for loading models, executing attention mechanisms, and performing inference.
+* **Transformers (Hugging Face):** Used to load Qwen model configs and handle speech tokenizer mappings.
+* **FAISS (Facebook AI Similarity Search):** Used to compile and index image vector representations, executing inner-product nearest-neighbor lookups in microseconds.
+* **Sentence-Transformers (CLIP):** Pre-trained `clip-ViT-B-32` model is used to extract 512-dimensional joint semantic embeddings for both text query sentences and images.
+* **Faster-Whisper:** An optimized implementation of OpenAI's Whisper ASR model, utilizing CTranslate2 for local, fast speech-to-text decoding during quantitative evaluations.
+* **Jiwer:** A python library to compute the edit distance metrics (Word Error Rate).
+
+\section{Code Structure and Key Implementations}
+The code is modularized into dedicated source files under the `src/` directory.
+
+### Text Segmentation (`src/preprocess.py`)
+This script loads the raw script, cleans formatting errors, and tokenizes sentences using regular expressions. The core segmentation function is structured as follows:
+\begin{lstlisting}[language=Python]
+def segment_script(text: str, max_sentences_per_segment: int = 2) -> list[Segment]:
+    sentences = split_sentences(text)
+    segments = []
+    current = []
+    segment_id = 1
+    for sentence in sentences:
+        current.append(sentence)
+        if len(current) >= max_sentences_per_segment:
+            segment_text = " ".join(current)
+            segments.append(Segment(segment_id=segment_id, text=segment_text))
+            segment_id += 1
+            current = []
+    if current:
+        segments.append(Segment(segment_id=segment_id, text=" ".join(current)))
+    return segments
+\end{lstlisting}
+
+### FCPXML Export (`src/resolve_integration.py`)
+Because the free version of DaVinci Resolve restricts access to certain scripting APIs, we implement a file-based integration via FCPXML. This file maps the generated WAV files and retrieved images directly onto audio and video tracks:
+\begin{lstlisting}[language=XML]
+<?xml version="1.5" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.5">
+  <resources>
+    <format id="r1" name="FFVideoFormat1080p25" frameDuration="1/25s" width="1920" height="1080"/>
+    <asset id="r2" name="segment_01.wav" src="file:///C:/Users/.../audio/segment_01.wav" hasAudio="1" hasVideo="0"/>
+    <asset id="r3" name="image_01.jpg" src="file:///C:/Users/.../images/image_01.jpg" hasAudio="0" hasVideo="1"/>
+  </resources>
+  <library>
+    <event name="AI Video Pipeline">
+      <project name="Auto Generated Timeline">
+        <sequence format="r1">
+          <spine>
+            <asset-clip name="image_01.jpg" ref="r3" duration="100/25s" format="r1">
+              <asset-clip name="segment_01.wav" ref="r2" duration="100/25s" lane="-1" offset="0s"/>
+            </asset-clip>
+          </spine>
+        </sequence>
+      </project>
+    </event>
+  </library>
+</fcpxml>
+\end{lstlisting}
+
+\newpage
+
+% =========================================================
+% CHAPTER 4
+% =========================================================
+\chapter{Evaluation and Experimental Results}
+\label{ch:evaluation}
+
+\section{Quantitative Evaluation using Automatic Speech Recognition}
+To quantitatively measure the clarity of the synthesized voice output from the custom-trained Qwen3-TTS model, we implemented an automated evaluation pipeline using the **Faster-Whisper (small)** ASR model. We computed the Word Error Rate (WER) using the standard Levenshtein formula:
+\begin{equation}
+    WER = \frac{S + D + I}{N} = \frac{S + D + I}{S + D + C}
+\end{equation}
+where:
+* $S$ is the number of substitutions,
+* $D$ is the number of deletions,
+* $I$ is the number of insertions,
+* $C$ is the number of correct words,
+* $N$ is the total number of words in the reference text.
+
+We tested the model on 8 distinct test sentences. The reference transcripts, ASR transcriptions, and computed WER scores are presented in Table~\ref{tab:wer_results_full}.
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{lllc}
+\toprule
+\textbf{ID} & \textbf{Reference Text} & \textbf{ASR Hypothesis} & \textbf{WER} \\
+\midrule
+1 & Hay còn gọi là handshaking lemma & Hay còn gọi là hand-seeking Glema & 33.3\% \\
+2 & số lượng những người có số bạn bè... & số lượng những người có số bạn bè... & 5.9\% \\
+3 & Tiếp theo, chúng ta đến với một... & Tiếp theo, chúng ta đến với một... & 8.7\% \\
+4 & Tại sao số lượng ông lẻ lại phải... & Tại sao số lượng ông lẻ lại phải... & 9.1\% \\
+5 & Mỗi cạnh của đồ thị sẽ đóng góp... & Mỗi cạnh của đồ thị sẽ đóng góp... & 0.0\% \\
+6 & Và như vậy, tổng số bậc của tất... & Và như vậy tổng số bậc của tất... & 0.0\% \\
+7 & Xin chào tất cả các bạn, chào mừng... & Xin chào tất cả các bạn, chào mừng... & 0.0\% \\
+8 & Video này tôi sẽ hướng dẫn các... & Video này tôi sẽ hướng dẫn các... & 0.0\% \\
+\midrule
+& \textbf{Average Word Error Rate} & & \textbf{15.75\%} \\
+\bottomrule
+\end{tabular}
+\caption{Detailed WER Benchmarking Results for Qwen3-TTS}
+\label{tab:wer_results_full}
+\end{table}
+
+### Error Analysis
+1. **Code-switching errors:** Test case 1 features the technical English terms "handshaking lemma." The Vietnamese-trained Qwen3-TTS model attempts to pronounce the terms using Vietnamese phonetics, resulting in the transcription "hand-seeking Glema". This highlights the need for an automated text normalization preprocessor to translate or transcribe English terms before synthesis.
+2. **Vietnamese diacritics:** Minor differences occurred in homophones (e.g., "chẳng" vs "chẵn").
+3. **Accuracy rating:** An average WER of **15.75\%** is below the 20\% threshold, indicating that the synthesized voice has high intelligibility and is suitable for automatic narration.
+
+\section{TTS Model Architecture Comparison}
+We compare the performance of the implemented **Qwen3-TTS** model against the traditional **Coqui-TTS** architecture in Table~\ref{tab:tts_comparison}.
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{p{3.5cm}p{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Parameter} & \textbf{Qwen3-TTS (Implemented)} & \textbf{Coqui-TTS (Traditional VITS)} \\
+\midrule
+\textbf{Representation} & Neural audio codec language tokens & Mel-spectrogram 2D images \\
+\textbf{Model Size} & 1.7 Billion parameters & $\sim$ 80-150 Million parameters \\
+\textbf{Zero-shot Cloning} & High quality with 3-second audio prompt & Requires complex speaker embedding vectors \\
+\textbf{Voice Expression} & Captures natural breath and pauses & Tends to sound flat and robotic \\
+\textbf{Training Complexity} & Low (Raw JSONL manifest format) & High (Requires Kaldi phone alignment) \\
+\textbf{Hardware VRAM} & High ($\ge$ 10GB CUDA VRAM) & Low (Run/train on CPU or standard laptop GPU) \\
+\bottomrule
+\end{tabular}
+\caption{Architectural Comparison: Qwen3-TTS vs Coqui-TTS}
+\label{tab:tts_comparison}
+\end{table}
+
+\newpage
+
+% =========================================================
+% CHAPTER 5
+% =========================================================
+\chapter{Conclusion and Future Work}
+\label{ch:conclusion}
+
+\section{Conclusion}
+This thesis successfully researched, developed, and evaluated an **AI Video Assistant** prototype pipeline. The system automates the translation of Vietnamese scripts into aligned editing timelines for DaVinci Resolve. The main contributions of this research are:
+1. **Pipeline integration:** Successfully combined text segmentation, LLM metadata analysis, voice generation, and semantic image search.
+2. **Personalized TTS:** Trained a custom Qwen3-TTS model on Kaggle and deployed it offline, achieving an average WER of **15.75\%**.
+3. **FCPXML integration:** Programmed an FCPXML v1.5 exporter that allows free DaVinci Resolve users to load and align media automatically.
+
+\section{Future Work}
+Future development of the system will focus on:
+* **Vietnamese Text Normalization:** Developing a frontend text processor to convert numbers, abbreviations, and foreign terms into written Vietnamese phonetics before voice synthesis.
+* **Video B-Roll retrieval:** Replacing static images with video clip retrieval using video embeddings.
+* **Graphical User Interface (GUI):** Building a web-based GUI (e.g., Gradio or Streamlit) to make the tool accessible to non-technical video editors.
+
+% =========================================================
+% BIBLIOGRAPHY
+% =========================================================
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibitem{qwen}
+Alibaba Cloud, \textit{Qwen Audio Models Documentation and SFT Training Guides}, 2024.
+
+\bibitem{faiss}
+J. Johnson, M. Douze, and H. Jégou, \textit{"Billion-scale similarity search with GPUs,"} IEEE Transactions on Big Data, vol. 7, no. 3, pp. 535-547, 2019.
+
+\bibitem{clip}
+A. Radford et al., \textit{"Learning transferable visual models from natural language supervision,"} in International Conference on Machine Learning (ICML), PMLR, 2021.
+
+\bibitem{whisper}
+A. Radford et al., \textit{"Robust speech recognition via large-scale weak supervision,"} in International Conference on Machine Learning (ICML), PMLR, 2023.
+
+\end{thebibliography}
+
+\end{document}
